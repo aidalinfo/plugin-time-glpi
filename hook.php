@@ -117,6 +117,7 @@ function plugin_timetracker_install(): bool
         $migration->addKey($alert_table, 'contracts_id');
         $migration->addKey($alert_table, 'type');
         $migration->addKey($alert_table, 'is_active');
+        $migration->executeMigration();
     }
 
     Config::setConfigurationValues('plugin:timetracker', ['version' => PLUGIN_TIMETRACKER_VERSION]);
