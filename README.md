@@ -14,11 +14,12 @@ This plugin targets GLPI 11 and stores all consumed time in minutes. It lets you
 
 See [docs/INSTALLATION.md](docs/INSTALLATION.md).
 
-Short version:
+Short version — download the latest release and extract it:
 
 ```bash
-cd /path/to/glpi/plugins
-git clone https://github.com/aidalinfo/plugin-time-glpi.git timetracker
+curl -L -o timetracker.zip \
+  https://github.com/aidalinfo/plugin-time-glpi/releases/latest/download/timetracker.zip
+unzip timetracker.zip -d /path/to/glpi/plugins/
 ```
 
 Then install and enable **Contract time tracking** from **Setup > Plugins**.

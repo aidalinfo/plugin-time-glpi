@@ -2,18 +2,34 @@
 
 Ce plugin est compatible avec GLPI `11.0.x`.
 
-## Depuis une archive ZIP
+## Depuis la dernière release (recommandé)
 
-1. Telecharger l'artefact `timetracker.zip` genere par GitHub Actions.
-2. Extraire l'archive dans le dossier `plugins` de GLPI.
-3. Verifier que le chemin final est exactement :
+### Téléchargement
+
+```bash
+curl -L -o timetracker.zip \
+  https://github.com/aidalinfo/plugin-time-glpi/releases/latest/download/timetracker.zip
+```
+
+Ou directement depuis le navigateur :
+[https://github.com/aidalinfo/plugin-time-glpi/releases/latest/download/timetracker.zip](https://github.com/aidalinfo/plugin-time-glpi/releases/latest/download/timetracker.zip)
+
+### Installation
+
+1. Extraire l'archive dans le dossier `plugins` de GLPI :
+
+   ```bash
+   unzip timetracker.zip -d /path/to/glpi/plugins/
+   ```
+
+2. Vérifier que le chemin final est exactement :
 
    ```text
    /path/to/glpi/plugins/timetracker/setup.php
    ```
 
-4. Depuis GLPI, aller dans **Configuration > Plugins**.
-5. Installer puis activer **Contract time tracking**.
+3. Depuis GLPI, aller dans **Configuration > Plugins**.
+4. Installer puis activer **Contract time tracking**.
 
 ## Depuis Git
 
@@ -24,7 +40,7 @@ git clone https://github.com/aidalinfo/plugin-time-glpi.git timetracker
 
 Puis installer et activer le plugin depuis **Configuration > Plugins**.
 
-## Verification CLI
+## Vérification CLI
 
 Depuis la racine GLPI :
 
@@ -34,7 +50,7 @@ php bin/console plugin:activate timetracker
 php bin/console plugin:list
 ```
 
-Le plugin cree deux tables :
+Le plugin crée deux tables :
 
 ```text
 glpi_plugin_timetracker_contractbudgets
@@ -44,10 +60,9 @@ glpi_plugin_timetracker_timeentries
 ## Utilisation
 
 1. Ouvrir un contrat GLPI.
-2. Dans l'onglet **Time budget**, definir le temps initial et le seuil d'alerte en minutes ou en heures.
+2. Dans l'onglet **Time budget**, définir le temps initial et le seuil d'alerte en minutes ou en heures.
 3. Ouvrir un ticket GLPI.
-4. Dans l'onglet **Contract time**, saisir le temps passe en minutes ou en heures.
+4. Dans l'onglet **Contract time**, saisir le temps passé en minutes ou en heures.
 5. Ouvrir **Tools > Contract time** pour consulter le dashboard par contrat.
 
-Les valeurs sont toujours stockees en minutes dans la base du plugin.
-
+Les valeurs sont toujours stockées en minutes dans la base du plugin.
