@@ -17,7 +17,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -173,3 +173,12 @@ jobs:
           path: dist/timetracker.zip
           if-no-files-found: error
           retention-days: 30
+
+      - name: Create GitHub Release
+        if: steps.version.outputs.should_build == 'true' && github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: v${{ steps.version.outputs.version }}
+          files: dist/timetracker.zip
+          generate_release_notes: true
