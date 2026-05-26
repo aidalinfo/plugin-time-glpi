@@ -3,7 +3,6 @@
 include('../../../inc/includes.php');
 
 Session::checkRight('ticket', UPDATE);
-Session::checkCSRF($_POST);
 
 $tickets_id = (int) ($_POST['tickets_id'] ?? 0);
 
