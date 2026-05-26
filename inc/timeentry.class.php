@@ -18,7 +18,7 @@ class PluginTimetrackerTimeEntry extends CommonDBTM
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
     {
         if ($item->getType() === Ticket::getType() && Ticket::canView()) {
-            return "<i class='ti ti-file-time me-1'></i>" . __tt('Contract time');
+            return "<span class='d-flex align-items-center gap-1'><i class='ti ti-file-time'></i>" . __tt('Contract time') . "</span>";
         }
 
         return '';
