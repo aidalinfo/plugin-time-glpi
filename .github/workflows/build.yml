@@ -28,7 +28,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.repository }}
+          repository: aidalinfo/plugin-time-glpi
           ref: ${{ github.ref }}
           fetch-depth: 0
 
