@@ -121,49 +121,65 @@ class PluginTimetrackerTimeEntry extends CommonDBTM
 
     private static function showTicketTab(int $tickets_id): void
     {
-        echo "<div class='center'>";
+        echo "<div class='p-3'>";
+
+        // Bloc total
+        echo "<div class='mb-4'>";
         echo "<table class='tab_cadre_fixe'>";
         echo "<tr><th colspan='4'>" . __tt('Contract time spent on this ticket') . '</th></tr>';
-        echo "<tr class='tab_bg_1'><td>" . __tt('Total') . '</td><td colspan="3"><strong>'
+        echo "<tr class='tab_bg_1'>";
+        echo "<td class='p-3'>" . __tt('Total') . '</td>';
+        echo "<td colspan='3' class='p-3'><strong>"
             . htmlescape(PluginTimetrackerContractBudget::formatMinutes(self::getTicketTotalMinutes($tickets_id)))
-            . '</strong></td></tr>';
+            . '</strong></td>';
+        echo '</tr>';
         echo '</table>';
+        echo '</div>';
 
         if (Ticket::canUpdate()) {
             $default_contracts_id = PluginTimetrackerContractBudget::getSuggestedContractForTicket($tickets_id);
 
-            echo "<form method='post' action='" . htmlescape(PluginTimetrackerContractBudget::getPluginWebDir() . '/front/timeentry.form.php') . "'>";
+            echo "<div class='mb-4'>";
+            echo "<form method='post' action='"
+                . htmlescape(PluginTimetrackerContractBudget::getPluginWebDir() . '/front/timeentry.form.php') . "'>";
             echo Html::hidden('tickets_id', ['value' => $tickets_id]);
             echo "<table class='tab_cadre_fixe'>";
             echo "<tr><th colspan='4'>" . __tt('Add spent time') . '</th></tr>';
             echo "<tr class='tab_bg_1'>";
-            echo '<td>' . __('Contract') . '</td><td>';
+            echo "<td class='p-3'><label class='form-label fw-semibold'>" . __('Contract') . "</label><br>";
             PluginTimetrackerContractBudget::dropdownConfiguredContracts([
-                'name' => 'contracts_id',
-                'value' => $default_contracts_id,
+                'name'                => 'contracts_id',
+                'value'               => $default_contracts_id,
                 'display_emptychoice' => true,
             ]);
-            echo '</td>';
-            echo '<td>' . __tt('Spent on') . '</td>';
-            echo "<td><input type='date' name='spent_at' class='form-control' value='" . htmlescape(date('Y-m-d')) . "'></td>";
+            echo "</td>";
+            echo "<td class='p-3'><label class='form-label fw-semibold'>" . __tt('Spent on') . "</label><br>";
+            echo "<input type='date' name='spent_at' class='form-control'"
+                . " value='" . htmlescape(date('Y-m-d')) . "'>";
+            echo "</td>";
             echo '</tr>';
             echo "<tr class='tab_bg_1'>";
-            echo '<td>' . __('Duration') . '</td>';
-            echo "<td><input type='number' min='0' step='0.25' name='duration_value' class='form-control' value='0'></td>";
-            echo '<td>' . __('Unit') . '</td><td>';
+            echo "<td class='p-3'><label class='form-label fw-semibold'>" . __('Duration') . "</label><br>";
+            echo "<div class='d-flex gap-2 align-items-center'>";
+            echo "<input type='number' min='0' step='0.25' name='duration_value'"
+                . " class='form-control' style='width:100px' value='0'>";
             Dropdown::showFromArray('duration_unit', [
                 'minutes' => __tt('Minutes'),
                 'hours'   => __tt('Hours'),
             ], ['value' => 'minutes']);
-            echo '</td>';
+            echo "</div></td>";
+            echo "<td class='p-3'><label class='form-label fw-semibold'>" . __('Comments') . "</label><br>";
+            echo "<textarea name='comment' class='form-control'></textarea>";
+            echo "</td>";
             echo '</tr>';
-            echo "<tr class='tab_bg_1'>";
-            echo '<td>' . __('Comments') . '</td>';
-            echo "<td colspan='3'><textarea name='comment' class='form-control'></textarea></td>";
-            echo '</tr>';
-            echo "<tr><td colspan='4' class='center'>" . Html::submit(_x('button', 'Add'), ['name' => 'add']) . '</td></tr>';
+            echo "<tr><td colspan='4' class='p-3 text-end'>";
+            echo "<button type='submit' name='add' class='btn btn-primary'>";
+            echo "<i class='ti ti-plus me-1'></i>" . htmlescape(_x('button', 'Add'));
+            echo "</button>";
+            echo '</td></tr>';
             echo '</table>';
             Html::closeForm();
+            echo '</div>';
         }
 
         self::showTicketEntries($tickets_id);
@@ -172,16 +188,23 @@ class PluginTimetrackerTimeEntry extends CommonDBTM
 
     private static function showTicketEntries(int $tickets_id): void
     {
-        $entries = self::getTicketEntries($tickets_id);
+        $entries  = self::getTicketEntries($tickets_id);
         $contract = new Contract();
-        $user = new User();
+        $user     = new User();
 
         echo "<table class='tab_cadre_fixe'>";
         echo "<tr><th colspan='6'>" . __tt('Time history') . '</th></tr>';
-        echo '<tr><th>' . __('Date') . '</th><th>' . __('Contract') . '</th><th>' . __('User') . '</th><th>' . __('Duration') . '</th><th>' . __('Comments') . '</th><th></th></tr>';
+        echo '<tr>';
+        echo '<th class="p-2">' . __('Date') . '</th>';
+        echo '<th class="p-2">' . __('Contract') . '</th>';
+        echo '<th class="p-2">' . __('User') . '</th>';
+        echo '<th class="p-2">' . __('Duration') . '</th>';
+        echo '<th class="p-2">' . __('Comments') . '</th>';
+        echo '<th class="p-2"></th>';
+        echo '</tr>';
 
         if ($entries === []) {
-            echo "<tr class='tab_bg_1'><td colspan='6' class='center'>" . __('No item found') . '</td></tr>';
+            echo "<tr class='tab_bg_1'><td colspan='6' class='center p-3'>" . __('No item found') . '</td></tr>';
             echo '</table>';
             return;
         }
@@ -198,17 +221,22 @@ class PluginTimetrackerTimeEntry extends CommonDBTM
             }
 
             echo "<tr class='tab_bg_1'>";
-            echo '<td>' . htmlescape((string) $entry['spent_at']) . '</td>';
-            echo '<td>' . htmlescape($contract_name) . '</td>';
-            echo '<td>' . htmlescape($user_name) . '</td>';
-            echo '<td>' . htmlescape(PluginTimetrackerContractBudget::formatMinutes((int) $entry['duration_minutes'])) . '</td>';
-            echo '<td>' . nl2br(htmlescape((string) $entry['comment'])) . '</td>';
-            echo '<td class="center">';
+            echo '<td class="p-2">' . htmlescape((string) $entry['spent_at']) . '</td>';
+            echo '<td class="p-2">' . htmlescape($contract_name) . '</td>';
+            echo '<td class="p-2">' . htmlescape($user_name) . '</td>';
+            echo '<td class="p-2">'
+                . htmlescape(PluginTimetrackerContractBudget::formatMinutes((int) $entry['duration_minutes']))
+                . '</td>';
+            echo '<td class="p-2">' . nl2br(htmlescape((string) $entry['comment'])) . '</td>';
+            echo '<td class="p-2 text-center">';
             if (Ticket::canUpdate()) {
-                echo "<form method='post' action='" . htmlescape(PluginTimetrackerContractBudget::getPluginWebDir() . '/front/timeentry.form.php') . "'>";
+                echo "<form method='post' action='"
+                    . htmlescape(PluginTimetrackerContractBudget::getPluginWebDir() . '/front/timeentry.form.php') . "'>";
                 echo Html::hidden('id', ['value' => (int) $entry['id']]);
                 echo Html::hidden('tickets_id', ['value' => $tickets_id]);
-                echo Html::submit(_x('button', 'Delete permanently'), ['name' => 'delete', 'class' => 'btn btn-sm btn-outline-danger']);
+                echo "<button type='submit' name='delete' class='btn btn-sm btn-outline-danger'"
+                    . " title='" . htmlescape(_x('button', 'Delete permanently')) . "'>"
+                    . "<i class='ti ti-trash'></i></button>";
                 Html::closeForm();
             }
             echo '</td>';
