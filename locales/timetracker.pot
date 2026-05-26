@@ -94,3 +94,45 @@ msgstr ""
 
 msgid "Please rename the plugin folder \"%s\" to \"timetracker\"."
 msgstr ""
+
+msgid "Alert tracker"
+msgstr ""
+
+msgid "Deadline"
+msgstr ""
+
+msgid "Threshold"
+msgstr ""
+
+msgid "Days before"
+msgstr ""
+
+msgid "Recipient email"
+msgstr ""
+
+msgid "Alert added."
+msgstr ""
+
+msgid "Alert deleted."
+msgstr ""
+
+msgid "Invalid email address."
+msgstr ""
+
+msgid "No alerts configured."
+msgstr ""
+
+msgid "Add alert"
+msgstr ""
+
+msgid "[GLPI Timetracker] Contract \"%s\" — deadline in %d days"
+msgstr ""
+
+msgid "Contract: %s\nEnd date: %s\nDays remaining: %d\n\nThis is an automated alert from GLPI Timetracker."
+msgstr ""
+
+msgid "[GLPI Timetracker] Budget threshold reached — contract \"%s\""
+msgstr ""
+
+msgid "Contract: %s\nInitial budget: %s\nConsumed: %s\nThreshold: %s\nRemaining: %s\n\nThis is an automated alert from GLPI Timetracker."
+msgstr ""

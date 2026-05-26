@@ -96,3 +96,45 @@ msgstr "Este plugin requiere PHP >= 8.2."
 
 msgid "Please rename the plugin folder \"%s\" to \"timetracker\"."
 msgstr "Por favor renombre la carpeta del plugin \"%s\" a \"timetracker\"."
+
+msgid "Alert tracker"
+msgstr "Rastreador de alertas"
+
+msgid "Deadline"
+msgstr "Vencimiento"
+
+msgid "Threshold"
+msgstr "Umbral presupuesto"
+
+msgid "Days before"
+msgstr "Días antes"
+
+msgid "Recipient email"
+msgstr "Email destinatario"
+
+msgid "Alert added."
+msgstr "Alerta añadida."
+
+msgid "Alert deleted."
+msgstr "Alerta eliminada."
+
+msgid "Invalid email address."
+msgstr "Dirección de correo no válida."
+
+msgid "No alerts configured."
+msgstr "No hay alertas configuradas."
+
+msgid "Add alert"
+msgstr "Añadir alerta"
+
+msgid "[GLPI Timetracker] Contract \"%s\" — deadline in %d days"
+msgstr "[GLPI Timetracker] Contrato \"%s\" — vencimiento en %d días"
+
+msgid "Contract: %s\nEnd date: %s\nDays remaining: %d\n\nThis is an automated alert from GLPI Timetracker."
+msgstr "Contrato: %s\nFecha de fin: %s\nDías restantes: %d\n\nEsta es una alerta automática de GLPI Timetracker."
+
+msgid "[GLPI Timetracker] Budget threshold reached — contract \"%s\""
+msgstr "[GLPI Timetracker] Umbral de presupuesto alcanzado — contrato \"%s\""
+
+msgid "Contract: %s\nInitial budget: %s\nConsumed: %s\nThreshold: %s\nRemaining: %s\n\nThis is an automated alert from GLPI Timetracker."
+msgstr "Contrato: %s\nPresupuesto inicial: %s\nConsumido: %s\nUmbral: %s\nRestante: %s\n\nEsta es una alerta automática de GLPI Timetracker."
