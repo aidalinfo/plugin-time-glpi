@@ -12,6 +12,10 @@ on:
       - tools/build_zip.py
       - .github/workflows/build.yml
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -24,7 +28,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          repository: aidalinfo/plugin-time-glpi
+          repository: ${{ github.repository }}
           ref: ${{ github.ref }}
           fetch-depth: 0
 
@@ -165,7 +169,7 @@ jobs:
         if: steps.version.outputs.should_build == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: timetracker
+          name: timetracker-${{ steps.version.outputs.version }}
           path: dist/timetracker.zip
           if-no-files-found: error
           retention-days: 30
