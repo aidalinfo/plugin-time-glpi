@@ -224,56 +224,101 @@ class PluginTimetrackerContractBudget extends CommonDBTM
             'comment'                 => '',
         ];
 
-        $spent = self::getSpentMinutes($contracts_id);
+        $spent     = self::getSpentMinutes($contracts_id);
         $remaining = (int) $budget['initial_minutes'] - $spent;
-        $status = self::getUsageStatus($budget + ['contracts_id' => $contracts_id]);
+        $status    = self::getUsageStatus($budget + ['contracts_id' => $contracts_id]);
+        $pct       = $budget['initial_minutes'] > 0
+            ? min(100, (int) round($spent / $budget['initial_minutes'] * 100))
+            : 0;
 
-        echo "<div class='center'>";
-        echo "<table class='tab_cadre_fixe'>";
+        $bar_class   = match ($status) {
+            'danger'  => 'bg-danger',
+            'warning' => 'bg-warning',
+            default   => 'bg-success',
+        };
+        $badge_class = match ($status) {
+            'danger'  => 'bg-danger',
+            'warning' => 'bg-warning text-dark',
+            default   => 'bg-success',
+        };
+        $status_label = match ($status) {
+            'danger'  => __tt('Over budget'),
+            'warning' => __tt('Threshold reached'),
+            default   => __('OK'),
+        };
+
+        echo "<div class='p-3'>";
+
+        // Bloc synthèse
+        echo "<table class='tab_cadre_fixe mb-3'>";
         echo "<tr><th colspan='4'>" . __tt('Contract time tracking') . '</th></tr>';
         echo "<tr class='tab_bg_1'>";
-        echo '<td>' . __tt('Initial time') . '</td><td>' . htmlescape(self::formatMinutes((int) $budget['initial_minutes'])) . '</td>';
-        echo '<td>' . __tt('Consumed time') . '</td><td>' . htmlescape(self::formatMinutes($spent)) . '</td>';
+        echo "<td class='p-3'><strong>" . __tt('Initial time') . "</strong><br>"
+            . htmlescape(self::formatMinutes((int) $budget['initial_minutes'])) . '</td>';
+        echo "<td class='p-3'><strong>" . __tt('Consumed time') . "</strong><br>"
+            . htmlescape(self::formatMinutes($spent)) . '</td>';
+        echo "<td class='p-3'><strong>" . __tt('Remaining time') . "</strong><br>"
+            . "<span class='" . self::getStatusCssClass($status) . "'>"
+            . htmlescape(self::formatMinutes($remaining)) . '</span></td>';
+        echo "<td class='p-3'><strong>" . __tt('Alert threshold') . "</strong><br>"
+            . htmlescape(self::formatMinutes((int) $budget['alert_threshold_minutes']))
+            . "<br><span class='badge {$badge_class} mt-1'>" . htmlescape($status_label) . '</span></td>';
         echo '</tr>';
-        echo "<tr class='tab_bg_1'>";
-        echo '<td>' . __tt('Remaining time') . '</td><td><strong class="' . self::getStatusCssClass($status) . '">' . htmlescape(self::formatMinutes($remaining)) . '</strong></td>';
-        echo '<td>' . __tt('Alert threshold') . '</td><td>' . htmlescape(self::formatMinutes((int) $budget['alert_threshold_minutes'])) . '</td>';
-        echo '</tr>';
+        echo "<tr class='tab_bg_1'><td colspan='4' class='px-3 pb-3'>";
+        echo "<div class='progress' style='height:20px'>";
+        echo "<div class='progress-bar {$bar_class}' role='progressbar' style='width:{$pct}%'"
+            . " aria-valuenow='{$pct}' aria-valuemin='0' aria-valuemax='100'>{$pct}%</div>";
+        echo "</div>";
+        echo '</td></tr>';
         echo '</table>';
 
+        // Formulaire
         if (Contract::canUpdate()) {
             $initial_value = self::getDisplayDurationValue((int) $budget['initial_minutes']);
-            $initial_unit = self::getDisplayDurationUnit((int) $budget['initial_minutes']);
-            $alert_value = self::getDisplayDurationValue((int) $budget['alert_threshold_minutes']);
-            $alert_unit = self::getDisplayDurationUnit((int) $budget['alert_threshold_minutes']);
+            $initial_unit  = self::getDisplayDurationUnit((int) $budget['initial_minutes']);
+            $alert_value   = self::getDisplayDurationValue((int) $budget['alert_threshold_minutes']);
+            $alert_unit    = self::getDisplayDurationUnit((int) $budget['alert_threshold_minutes']);
 
-            echo "<form method='post' action='" . htmlescape(self::getPluginWebDir() . '/front/contractbudget.form.php') . "'>";
+            echo "<form method='post' action='"
+                . htmlescape(self::getPluginWebDir() . '/front/contractbudget.form.php') . "'>";
             echo Html::hidden('contracts_id', ['value' => $contracts_id]);
             echo "<table class='tab_cadre_fixe'>";
             echo "<tr><th colspan='4'>" . __tt('Budget settings') . '</th></tr>';
             echo "<tr class='tab_bg_1'>";
-            echo '<td>' . __tt('Initial time') . '</td>';
-            echo "<td><input type='number' min='0' step='0.25' name='initial_value' class='form-control' value='" . htmlescape((string) $initial_value) . "'>";
+            echo "<td class='p-3'><label class='form-label fw-semibold'>" . __tt('Initial time') . "</label><br>";
+            echo "<div class='d-flex gap-2 align-items-center'>";
+            echo "<input type='number' min='0' step='0.25' name='initial_value'"
+                . " class='form-control' style='width:100px' value='" . htmlescape((string) $initial_value) . "'>";
             Dropdown::showFromArray('initial_unit', [
                 'minutes' => __tt('Minutes'),
                 'hours'   => __tt('Hours'),
             ], ['value' => $initial_unit]);
-            echo '</td>';
-            echo '<td>' . __tt('Alert threshold') . '</td>';
-            echo "<td><input type='number' min='0' step='0.25' name='alert_value' class='form-control' value='" . htmlescape((string) $alert_value) . "'>";
+            echo "</div></td>";
+            echo "<td class='p-3'><label class='form-label fw-semibold'>" . __tt('Alert threshold') . "</label><br>";
+            echo "<div class='d-flex gap-2 align-items-center'>";
+            echo "<input type='number' min='0' step='0.25' name='alert_value'"
+                . " class='form-control' style='width:100px' value='" . htmlescape((string) $alert_value) . "'>";
             Dropdown::showFromArray('alert_unit', [
                 'minutes' => __tt('Minutes'),
                 'hours'   => __tt('Hours'),
             ], ['value' => $alert_unit]);
-            echo '</td>';
+            echo "</div></td>";
             echo '</tr>';
             echo "<tr class='tab_bg_1'>";
-            echo '<td>' . __('Active') . '</td><td>';
-            echo "<input type='checkbox' name='is_active' value='1'" . ((int) $budget['is_active'] === 1 ? " checked='checked'" : '') . '>';
-            echo '</td><td>' . __('Comments') . '</td>';
-            echo "<td><textarea name='comment' class='form-control'>" . htmlescape((string) $budget['comment']) . '</textarea></td>';
+            echo "<td class='p-3'><label class='form-label fw-semibold'>" . __('Active') . "</label><br>";
+            echo "<input type='checkbox' class='form-check-input' name='is_active' value='1'"
+                . ((int) $budget['is_active'] === 1 ? " checked='checked'" : '') . '>';
+            echo "</td>";
+            echo "<td class='p-3'><label class='form-label fw-semibold'>" . __('Comments') . "</label><br>";
+            echo "<textarea name='comment' class='form-control'>"
+                . htmlescape((string) $budget['comment']) . '</textarea>';
+            echo "</td>";
             echo '</tr>';
-            echo "<tr><td colspan='4' class='center'>" . Html::submit(_x('button', 'Save'), ['name' => 'update']) . '</td></tr>';
+            echo "<tr><td colspan='4' class='p-3 text-end'>";
+            echo "<button type='submit' name='update' class='btn btn-primary'>";
+            echo "<i class='ti ti-device-floppy me-1'></i>" . htmlescape(_x('button', 'Save'));
+            echo "</button>";
+            echo '</td></tr>';
             echo '</table>';
             Html::closeForm();
         }
