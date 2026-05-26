@@ -175,10 +175,10 @@ jobs:
           retention-days: 30
 
       - name: Create GitHub Release
-        if: steps.version.outputs.should_build == 'true' && github.ref_type == 'tag'
+        if: steps.version.outputs.should_build == 'true'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
+          tag_name: v${{ steps.version.outputs.version }}
           name: v${{ steps.version.outputs.version }}
           files: dist/timetracker.zip
           generate_release_notes: true
