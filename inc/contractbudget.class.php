@@ -25,7 +25,7 @@ class PluginTimetrackerContractBudget extends CommonDBTM
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
     {
         if ($item->getType() === Contract::getType() && Contract::canView()) {
-            return __tt('Time budget');
+            return "<i class='ti ti-clock-hour-4 me-1'></i>" . __tt('Time budget');
         }
 
         return '';

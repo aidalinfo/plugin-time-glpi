@@ -26,7 +26,7 @@ class PluginTimetrackerAlertConfig extends CommonDBTM
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
     {
         if ($item->getType() === Contract::getType() && Contract::canView()) {
-            return __tt('Alert tracker');
+            return "<i class='ti ti-bell me-1'></i>" . __tt('Alert tracker');
         }
         return '';
     }
