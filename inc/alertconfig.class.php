@@ -227,6 +227,7 @@ class PluginTimetrackerAlertConfig extends CommonDBTM
 
     private static function processThresholdAlert(array $alert, Contract $contract): int
     {
+        // One-shot: only fires once; reset last_sent_at manually to re-arm after budget reset
         if (!empty($alert['last_sent_at'])) {
             return 0;
         }
