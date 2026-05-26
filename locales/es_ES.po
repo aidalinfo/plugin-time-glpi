@@ -1,0 +1,98 @@
+# Spanish (Spain) translation for timetracker GLPI plugin
+# Copyright (C) 2026 Aidalinfo
+msgid ""
+msgstr ""
+"Project-Id-Version: timetracker 0.1.4\n"
+"POT-Creation-Date: 2026-05-26\n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Contract time dashboard"
+msgstr "Panel de tiempo de contrato"
+
+msgid "Contract time"
+msgstr "Tiempo de contrato"
+
+msgid "Time budget"
+msgstr "Presupuesto de tiempo"
+
+msgid "Contract time tracking"
+msgstr "Seguimiento de tiempo de contrato"
+
+msgid "Budget settings"
+msgstr "Configuración del presupuesto"
+
+msgid "Initial time"
+msgstr "Tiempo inicial"
+
+msgid "Consumed time"
+msgstr "Tiempo consumido"
+
+msgid "Remaining time"
+msgstr "Tiempo restante"
+
+msgid "Alert threshold"
+msgstr "Umbral de alerta"
+
+msgid "Latest time entries"
+msgstr "Últimas entradas de tiempo"
+
+msgid "Add spent time"
+msgstr "Añadir tiempo empleado"
+
+msgid "Time history"
+msgstr "Historial"
+
+msgid "Spent on"
+msgstr "Gastado el"
+
+msgid "Over budget"
+msgstr "Presupuesto superado"
+
+msgid "Threshold reached"
+msgstr "Umbral alcanzado"
+
+msgid "Budget saved."
+msgstr "Presupuesto guardado."
+
+msgid "Unable to save budget."
+msgstr "No se pudo guardar el presupuesto."
+
+msgid "Time entry added."
+msgstr "Entrada añadida."
+
+msgid "Time entry deleted."
+msgstr "Entrada eliminada."
+
+msgid "Unable to delete time entry."
+msgstr "No se pudo eliminar la entrada."
+
+msgid "Contract and duration are required."
+msgstr "El contrato y la duración son obligatorios."
+
+msgid "Contract time budget"
+msgstr "Presupuesto de tiempo de contrato"
+
+msgid "Contract time budgets"
+msgstr "Presupuestos de tiempo de contrato"
+
+msgid "Contract time entry"
+msgstr "Entrada de tiempo de contrato"
+
+msgid "Contract time entries"
+msgstr "Entradas de tiempo de contrato"
+
+msgid "This plugin requires GLPI >= %s."
+msgstr "Este plugin requiere GLPI >= %s."
+
+msgid "This plugin is not yet validated for GLPI >= %s."
+msgstr "Este plugin aún no está validado para GLPI >= %s."
+
+msgid "This plugin requires PHP >= 8.2."
+msgstr "Este plugin requiere PHP >= 8.2."
+
+msgid "Please rename the plugin folder \"%s\" to \"timetracker\"."
+msgstr "Por favor renombre la carpeta del plugin \"%s\" a \"timetracker\"."

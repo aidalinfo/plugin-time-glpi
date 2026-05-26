@@ -1,0 +1,96 @@
+# GLPI timetracker plugin — translation template
+# Copyright (C) 2026 Aidalinfo
+msgid ""
+msgstr ""
+"Project-Id-Version: timetracker 0.1.4\n"
+"POT-Creation-Date: 2026-05-26\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Contract time dashboard"
+msgstr ""
+
+msgid "Contract time"
+msgstr ""
+
+msgid "Time budget"
+msgstr ""
+
+msgid "Contract time tracking"
+msgstr ""
+
+msgid "Budget settings"
+msgstr ""
+
+msgid "Initial time"
+msgstr ""
+
+msgid "Consumed time"
+msgstr ""
+
+msgid "Remaining time"
+msgstr ""
+
+msgid "Alert threshold"
+msgstr ""
+
+msgid "Latest time entries"
+msgstr ""
+
+msgid "Add spent time"
+msgstr ""
+
+msgid "Time history"
+msgstr ""
+
+msgid "Spent on"
+msgstr ""
+
+msgid "Over budget"
+msgstr ""
+
+msgid "Threshold reached"
+msgstr ""
+
+msgid "Budget saved."
+msgstr ""
+
+msgid "Unable to save budget."
+msgstr ""
+
+msgid "Time entry added."
+msgstr ""
+
+msgid "Time entry deleted."
+msgstr ""
+
+msgid "Unable to delete time entry."
+msgstr ""
+
+msgid "Contract and duration are required."
+msgstr ""
+
+msgid "Contract time budget"
+msgstr ""
+
+msgid "Contract time budgets"
+msgstr ""
+
+msgid "Contract time entry"
+msgstr ""
+
+msgid "Contract time entries"
+msgstr ""
+
+msgid "This plugin requires GLPI >= %s."
+msgstr ""
+
+msgid "This plugin is not yet validated for GLPI >= %s."
+msgstr ""
+
+msgid "This plugin requires PHP >= 8.2."
+msgstr ""
+
+msgid "Please rename the plugin folder \"%s\" to \"timetracker\"."
+msgstr ""
