@@ -1,0 +1,7 @@
+/.agents/
+/.codex/
+/dist/
+/.phpunit.cache/
+/vendor/
+__pycache__/
+*.zip

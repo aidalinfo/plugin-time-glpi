@@ -1,0 +1,39 @@
+name: Build plugin ZIP
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build ZIP artifact
+    runs-on: ${{ vars.USE_SELF_HOSTED == 'true' && 'self-hosted' || 'ubuntu-latest' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate PHP syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          find setup.php hook.php front inc tools -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Build plugin ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/build_zip.py
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: timetracker
+          path: dist/timetracker.zip
+          if-no-files-found: error
+          retention-days: 30
