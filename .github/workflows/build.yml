@@ -9,6 +9,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Build ZIP artifact
@@ -17,11 +20,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          repository: aidalinfo/plugin-time-glpi
+          fetch-depth: 1
 
       - name: Validate PHP syntax
         shell: bash
         run: |
           set -euo pipefail
+          php --version
           find setup.php hook.php front inc tools -name '*.php' -print0 | xargs -0 -n1 php -l
 
       - name: Build plugin ZIP
@@ -29,6 +36,41 @@ jobs:
         run: |
           set -euo pipefail
           python3 tools/build_zip.py
+
+      - name: Verify plugin ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s dist/timetracker.zip
+          python3 - <<'PY'
+          from zipfile import ZipFile
+
+          required = {
+              "timetracker/setup.php",
+              "timetracker/hook.php",
+              "timetracker/plugin.xml",
+              "timetracker/LICENSE",
+              "timetracker/docs/INSTALLATION.md",
+              "timetracker/inc/contractbudget.class.php",
+              "timetracker/inc/timeentry.class.php",
+              "timetracker/inc/dashboard.class.php",
+          }
+
+          with ZipFile("dist/timetracker.zip") as archive:
+              names = set(archive.namelist())
+              missing = sorted(required - names)
+              forbidden = sorted(
+                  name for name in names
+                  if name.startswith(("timetracker/.git/", "timetracker/.github/", "timetracker/dist/", "timetracker/tools/"))
+              )
+
+          if missing:
+              raise SystemExit(f"Missing files in ZIP: {missing}")
+          if forbidden:
+              raise SystemExit(f"Forbidden files in ZIP: {forbidden}")
+
+          print("ZIP verification OK")
+          PY
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
