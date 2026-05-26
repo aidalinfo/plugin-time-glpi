@@ -278,6 +278,7 @@ class PluginTimetrackerAlertConfig extends CommonDBTM
             $mailer->send();
             return true;
         } catch (\Throwable $e) {
+            Toolbox::logError('PluginTimetrackerAlertConfig::sendMail failed: ' . $e->getMessage());
             return false;
         }
     }
