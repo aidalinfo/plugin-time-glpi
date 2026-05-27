@@ -2,7 +2,7 @@
 <root>
   <name>Contract time tracking</name>
   <key>timetracker</key>
-  <version>0.1.7</version>
+  <version>0.1.8</version>
   <license>MIT</license>
   <homepage></homepage>
   <authors>
