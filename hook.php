@@ -94,7 +94,7 @@ function plugin_timetracker_install(): bool
                `days_before` int unsigned NULL DEFAULT NULL,
                `recipient_email` varchar(255) NOT NULL DEFAULT '',
                `is_active` tinyint NOT NULL DEFAULT '1',
-               `last_sent_at` datetime NULL DEFAULT NULL,
+               `last_sent_at` timestamp NULL DEFAULT NULL,
                `date_creation` timestamp NULL DEFAULT NULL,
                `date_mod` timestamp NULL DEFAULT NULL,
                PRIMARY KEY (`id`),
@@ -111,12 +111,13 @@ function plugin_timetracker_install(): bool
         $migration->addField($alert_table, 'days_before', 'integer', ['null' => true]);
         $migration->addField($alert_table, 'recipient_email', 'string', ['value' => '']);
         $migration->addField($alert_table, 'is_active', 'bool', ['value' => 1]);
-        $migration->addField($alert_table, 'last_sent_at', 'datetime', ['null' => true]);
+        $migration->addField($alert_table, 'last_sent_at', 'timestamp', ['null' => true]);
         $migration->addField($alert_table, 'date_mod', 'timestamp', ['null' => true]);
         $migration->addField($alert_table, 'date_creation', 'timestamp', ['null' => true]);
         $migration->addKey($alert_table, 'contracts_id');
         $migration->addKey($alert_table, 'type');
         $migration->addKey($alert_table, 'is_active');
+        $migration->changeField($alert_table, 'last_sent_at', 'last_sent_at', 'timestamp', ['null' => true]);
         $migration->executeMigration();
     }
 
