@@ -25,6 +25,10 @@ function plugin_init_timetracker(): void
         'addtabon' => ['Ticket'],
     ]);
 
+    Plugin::registerClass(PluginTimetrackerTravelEntry::class, [
+        'addtabon' => ['Ticket'],
+    ]);
+
     Plugin::registerClass(PluginTimetrackerDashboard::class);
 
     Plugin::registerClass(PluginTimetrackerAlertConfig::class, [

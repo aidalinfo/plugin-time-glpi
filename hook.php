@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/inc/contractbudget.class.php';
 require_once __DIR__ . '/inc/timeentry.class.php';
+require_once __DIR__ . '/inc/travelentry.class.php';
 require_once __DIR__ . '/inc/alertconfig.class.php';
 
 function plugin_timetracker_install(): bool
@@ -82,6 +83,52 @@ function plugin_timetracker_install(): bool
         $migration->addKey($entry_table, 'spent_at');
     }
 
+    $travel_table = PluginTimetrackerTravelEntry::getTable();
+    if (!$DB->tableExists($travel_table)) {
+        $DB->doQuery(
+            "CREATE TABLE `$travel_table` (
+               `id` int unsigned NOT NULL AUTO_INCREMENT,
+               `tickets_id` int unsigned NOT NULL DEFAULT '0',
+               `contracts_id` int unsigned NOT NULL DEFAULT '0',
+               `users_id` int unsigned NOT NULL DEFAULT '0',
+               `travel_date` date DEFAULT NULL,
+               `km` decimal(10,2) NOT NULL DEFAULT '0.00',
+               `time_on_site_minutes` int unsigned NOT NULL DEFAULT '0',
+               `from_location` varchar(255) NOT NULL DEFAULT '',
+               `purpose` varchar(255) NOT NULL DEFAULT '',
+               `comment` text,
+               `is_deleted` tinyint NOT NULL DEFAULT '0',
+               `date_mod` timestamp NULL DEFAULT NULL,
+               `date_creation` timestamp NULL DEFAULT NULL,
+               PRIMARY KEY (`id`),
+               KEY `tickets_id` (`tickets_id`),
+               KEY `contracts_id` (`contracts_id`),
+               KEY `users_id` (`users_id`),
+               KEY `travel_date` (`travel_date`),
+               KEY `is_deleted` (`is_deleted`),
+               KEY `date_mod` (`date_mod`),
+               KEY `date_creation` (`date_creation`)
+            ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation}"
+        );
+    } else {
+        $migration->addField($travel_table, 'tickets_id', 'integer', ['value' => 0]);
+        $migration->addField($travel_table, 'contracts_id', 'integer', ['value' => 0]);
+        $migration->addField($travel_table, 'users_id', 'integer', ['value' => 0]);
+        $migration->addField($travel_table, 'travel_date', 'date', ['null' => true]);
+        $migration->addField($travel_table, 'km', 'decimal(10,2)', ['value' => 0]);
+        $migration->addField($travel_table, 'time_on_site_minutes', 'integer', ['value' => 0]);
+        $migration->addField($travel_table, 'from_location', 'string', ['value' => '']);
+        $migration->addField($travel_table, 'purpose', 'string', ['value' => '']);
+        $migration->addField($travel_table, 'comment', 'text');
+        $migration->addField($travel_table, 'is_deleted', 'bool', ['value' => 0]);
+        $migration->addField($travel_table, 'date_mod', 'timestamp', ['null' => true]);
+        $migration->addField($travel_table, 'date_creation', 'timestamp', ['null' => true]);
+        $migration->addKey($travel_table, 'tickets_id');
+        $migration->addKey($travel_table, 'contracts_id');
+        $migration->addKey($travel_table, 'users_id');
+        $migration->addKey($travel_table, 'travel_date');
+    }
+
     $migration->executeMigration();
 
     $alert_table = PluginTimetrackerAlertConfig::getTable();
@@ -121,7 +168,12 @@ function plugin_timetracker_install(): bool
         $migration->executeMigration();
     }
 
-    Config::setConfigurationValues('plugin:timetracker', ['version' => PLUGIN_TIMETRACKER_VERSION]);
+    $existing_config = Config::getConfigurationValues('plugin:timetracker');
+    $config_values   = ['version' => PLUGIN_TIMETRACKER_VERSION];
+    if (!isset($existing_config['km_rate_cents'])) {
+        $config_values['km_rate_cents'] = PluginTimetrackerTravelEntry::DEFAULT_KM_RATE_CENTS;
+    }
+    Config::setConfigurationValues('plugin:timetracker', $config_values);
 
     CronTask::register(
         'PluginTimetrackerAlertConfig',
@@ -143,6 +195,11 @@ function plugin_timetracker_uninstall(): bool
     $entry_table = PluginTimetrackerTimeEntry::getTable();
     if ($DB->tableExists($entry_table)) {
         $DB->dropTable($entry_table, true);
+    }
+
+    $travel_table = PluginTimetrackerTravelEntry::getTable();
+    if ($DB->tableExists($travel_table)) {
+        $DB->dropTable($travel_table, true);
     }
 
     $budget_table = PluginTimetrackerContractBudget::getTable();
