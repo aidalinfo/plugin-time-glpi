@@ -187,11 +187,18 @@ class PluginTimetrackerTravelEntry extends CommonDBTM
 
     private static function showTicketTab(int $tickets_id): void
     {
-        $totals    = self::getTicketTotals($tickets_id);
+        $totals   = self::getTicketTotals($tickets_id);
         $entries  = self::getTicketEntries($tickets_id);
         $contracts_id_for_rate = (int) ($entries[0]['contracts_id'] ?? 0);
         $rate     = self::getKmRateCents($contracts_id_for_rate);
-        $cost_cent = (int) round($totals['km'] * $rate);
+
+        $rate_cache = [];
+        $cost_cent  = 0;
+        foreach ($entries as $entry) {
+            $entry_cid  = (int) $entry['contracts_id'];
+            $entry_rate = $rate_cache[$entry_cid] ?? ($rate_cache[$entry_cid] = self::getKmRateCents($entry_cid));
+            $cost_cent += (int) round(((float) $entry['km']) * $entry_rate);
+        }
 
         echo "<div class='p-3'>";
 
@@ -316,6 +323,7 @@ class PluginTimetrackerTravelEntry extends CommonDBTM
             return;
         }
 
+        $rate_cache = [];
         foreach ($entries as $entry) {
             $contract_name = '';
             if ($contract->getFromDB((int) $entry['contracts_id'])) {
@@ -327,9 +335,10 @@ class PluginTimetrackerTravelEntry extends CommonDBTM
                 $user_name = $user->getName();
             }
 
-            $km        = (float) $entry['km'];
-            $entry_rate = self::getKmRateCents((int) $entry['contracts_id']);
-            $cost_cent = (int) round($km * $entry_rate);
+            $km          = (float) $entry['km'];
+            $entry_cid   = (int) $entry['contracts_id'];
+            $entry_rate  = $rate_cache[$entry_cid] ?? ($rate_cache[$entry_cid] = self::getKmRateCents($entry_cid));
+            $cost_cent   = (int) round($km * $entry_rate);
 
             echo "<tr class='tab_bg_1'>";
             echo '<td class="p-2">' . htmlescape((string) $entry['travel_date']) . '</td>';
