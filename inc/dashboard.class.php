@@ -41,7 +41,7 @@ class PluginTimetrackerDashboard extends CommonGLPI
 
         echo "<div class='center p-3'>";
         echo "<table class='tab_cadre_fixe'>";
-        echo "<tr><th colspan='7'>" . __tt('Contract time dashboard') . '</th></tr>';
+        echo "<tr><th colspan='11'>" . __tt('Contract time dashboard') . '</th></tr>';
         echo '<tr>';
         echo '<th class="p-2">' . __('Contract') . '</th>';
         echo '<th class="p-2">' . __('Active') . '</th>';
@@ -50,6 +50,10 @@ class PluginTimetrackerDashboard extends CommonGLPI
         echo '<th class="p-2">' . __tt('Remaining time') . '</th>';
         echo '<th class="p-2">' . __tt('Alert threshold') . '</th>';
         echo '<th class="p-2">' . __('Status') . '</th>';
+        echo '<th class="p-2">' . __tt('Travel km') . '</th>';
+        echo '<th class="p-2">' . __tt('Travel cost') . '</th>';
+        echo '<th class="p-2">' . __tt('Projection') . '</th>';
+        echo '<th class="p-2">' . __tt('Over budget?') . '</th>';
         echo '</tr>';
 
         $has_rows = false;
@@ -59,6 +63,12 @@ class PluginTimetrackerDashboard extends CommonGLPI
             $spent         = PluginTimetrackerContractBudget::getSpentMinutes($contracts_id);
             $remaining     = (int) $budget['initial_minutes'] - $spent;
             $status        = PluginTimetrackerContractBudget::getUsageStatus($budget);
+            $travel        = PluginTimetrackerTravelEntry::getContractTotals($contracts_id);
+            $rate          = PluginTimetrackerTravelEntry::getKmRateCents($contracts_id);
+            $cost          = (int) round($travel['km'] * $rate);
+            $proj          = PluginTimetrackerContractBudget::getProjection($contracts_id);
+            $projected_total = (int) $proj['projected_total_minutes'];
+            $over_projection = $projected_total > (int) $budget['initial_minutes'];
             $total_initial += (int) $budget['initial_minutes'];
             $total_spent   += $spent;
             $pct           = $budget['initial_minutes'] > 0
@@ -98,8 +108,16 @@ class PluginTimetrackerDashboard extends CommonGLPI
                 . '</td>';
             echo '<td class="p-2"><span class="badge ' . $badge_class . '">'
                 . htmlescape(self::getStatusLabel($status)) . '</span></td>';
+            echo '<td class="p-2">' . htmlescape(PluginTimetrackerTravelEntry::formatKm((float) $travel['km'])) . '</td>';
+            echo '<td class="p-2">' . htmlescape(PluginTimetrackerTravelEntry::formatCost($cost)) . '</td>';
+            echo '<td class="p-2">'
+                . htmlescape(PluginTimetrackerContractBudget::formatMinutes($projected_total)) . '</td>';
+            echo '<td class="p-2 text-center">'
+                . ($over_projection
+                    ? '<i class="ti ti-alert-triangle text-warning" title="' . htmlescape(__tt('Projected over budget')) . '"></i>'
+                    : '<i class="ti ti-check text-success"></i>') . '</td>';
             echo '</tr>';
-            echo "<tr class='tab_bg_1'><td colspan='7' class='px-3 pb-2'>";
+            echo "<tr class='tab_bg_1'><td colspan='11' class='px-3 pb-2'>";
             echo "<div class='progress' style='height:8px'>";
             echo "<div class='progress-bar {$bar_class}' role='progressbar' style='width:{$pct}%'></div>";
             echo "</div>";
@@ -107,7 +125,7 @@ class PluginTimetrackerDashboard extends CommonGLPI
         }
 
         if (!$has_rows) {
-            echo "<tr class='tab_bg_1'><td colspan='7' class='center p-3'>"
+            echo "<tr class='tab_bg_1'><td colspan='11' class='center p-3'>"
                 . __('No item found') . '</td></tr>';
         }
 
@@ -122,7 +140,7 @@ class PluginTimetrackerDashboard extends CommonGLPI
         echo '<td class="p-2"><strong>'
             . htmlescape(PluginTimetrackerContractBudget::formatMinutes($total_initial - $total_spent))
             . '</strong></td>';
-        echo '<td colspan="2"></td>';
+        echo '<td colspan="6"></td>';
         echo '</tr>';
         echo '</table>';
 
