@@ -35,8 +35,15 @@ class PluginTimetrackerTravelEntry extends CommonDBTM
         return true;
     }
 
-    public static function getKmRateCents(): int
+    public static function getKmRateCents(?int $contracts_id = null): int
     {
+        if ($contracts_id !== null && $contracts_id > 0) {
+            $budget = PluginTimetrackerContractBudget::getForContract($contracts_id);
+            if ($budget !== null && isset($budget['km_rate_cents']) && $budget['km_rate_cents'] !== null) {
+                return max(0, (int) $budget['km_rate_cents']);
+            }
+        }
+
         $conf = Config::getConfigurationValues('plugin:timetracker');
         if (isset($conf['km_rate_cents']) && is_numeric($conf['km_rate_cents'])) {
             return max(0, (int) $conf['km_rate_cents']);
@@ -181,7 +188,9 @@ class PluginTimetrackerTravelEntry extends CommonDBTM
     private static function showTicketTab(int $tickets_id): void
     {
         $totals    = self::getTicketTotals($tickets_id);
-        $rate      = self::getKmRateCents();
+        $entries  = self::getTicketEntries($tickets_id);
+        $contracts_id_for_rate = (int) ($entries[0]['contracts_id'] ?? 0);
+        $rate     = self::getKmRateCents($contracts_id_for_rate);
         $cost_cent = (int) round($totals['km'] * $rate);
 
         echo "<div class='p-3'>";
@@ -286,7 +295,6 @@ class PluginTimetrackerTravelEntry extends CommonDBTM
         $entries  = self::getTicketEntries($tickets_id);
         $contract = new Contract();
         $user     = new User();
-        $rate     = self::getKmRateCents();
 
         echo "<table class='tab_cadre_fixe'>";
         echo "<tr><th colspan='9'>" . __tt('Travel history') . '</th></tr>';
@@ -320,7 +328,8 @@ class PluginTimetrackerTravelEntry extends CommonDBTM
             }
 
             $km        = (float) $entry['km'];
-            $cost_cent = (int) round($km * $rate);
+            $entry_rate = self::getKmRateCents((int) $entry['contracts_id']);
+            $cost_cent = (int) round($km * $entry_rate);
 
             echo "<tr class='tab_bg_1'>";
             echo '<td class="p-2">' . htmlescape((string) $entry['travel_date']) . '</td>';
