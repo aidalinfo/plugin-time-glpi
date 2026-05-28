@@ -35,6 +35,8 @@ function plugin_init_timetracker(): void
         'addtabon' => ['Contract'],
     ]);
 
+    Plugin::registerClass(PluginTimetrackerMonthlyReport::class);
+
     $PLUGIN_HOOKS['csrf_compliant']['timetracker'] = true;
     $PLUGIN_HOOKS['config_page']['timetracker'] = 'front/config.form.php';
     $PLUGIN_HOOKS['menu_toadd']['timetracker'] = [

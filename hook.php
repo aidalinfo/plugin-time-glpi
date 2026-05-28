@@ -4,6 +4,7 @@ require_once __DIR__ . '/inc/contractbudget.class.php';
 require_once __DIR__ . '/inc/timeentry.class.php';
 require_once __DIR__ . '/inc/travelentry.class.php';
 require_once __DIR__ . '/inc/exporter.class.php';
+require_once __DIR__ . '/inc/monthlyreport.class.php';
 require_once __DIR__ . '/inc/alertconfig.class.php';
 
 function plugin_timetracker_install(): bool
@@ -185,6 +186,13 @@ function plugin_timetracker_install(): bool
         ['comment' => 'Send timetracker contract alerts', 'state' => CronTask::STATE_WAITING]
     );
 
+    CronTask::register(
+        'PluginTimetrackerMonthlyReport',
+        'sendMonthlyReports',
+        MONTH_TIMESTAMP,
+        ['comment' => 'Send monthly contract reports', 'state' => CronTask::STATE_WAITING]
+    );
+
     return true;
 }
 
@@ -216,6 +224,7 @@ function plugin_timetracker_uninstall(): bool
     }
 
     CronTask::unregister('PluginTimetrackerAlertConfig');
+    CronTask::unregister('PluginTimetrackerMonthlyReport');
 
     return true;
 }
