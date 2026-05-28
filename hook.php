@@ -3,6 +3,7 @@
 require_once __DIR__ . '/inc/contractbudget.class.php';
 require_once __DIR__ . '/inc/timeentry.class.php';
 require_once __DIR__ . '/inc/travelentry.class.php';
+require_once __DIR__ . '/inc/exporter.class.php';
 require_once __DIR__ . '/inc/alertconfig.class.php';
 
 function plugin_timetracker_install(): bool
