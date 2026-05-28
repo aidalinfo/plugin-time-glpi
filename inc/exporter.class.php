@@ -11,7 +11,7 @@ class PluginTimetrackerExporter
             $where['contracts_id'] = $contracts_id;
         }
         if ($date_from !== null && preg_match('/^\d{4}-\d{2}-\d{2}$/', $date_from)) {
-            $where['spent_at'] = ['>=', $date_from];
+            $where[] = ['spent_at' => ['>=', $date_from]];
         }
         if ($date_to !== null && preg_match('/^\d{4}-\d{2}-\d{2}$/', $date_to)) {
             $where[] = ['spent_at' => ['<=', $date_to]];
@@ -59,7 +59,7 @@ class PluginTimetrackerExporter
             $where['contracts_id'] = $contracts_id;
         }
         if ($date_from !== null && preg_match('/^\d{4}-\d{2}-\d{2}$/', $date_from)) {
-            $where['travel_date'] = ['>=', $date_from];
+            $where[] = ['travel_date' => ['>=', $date_from]];
         }
         if ($date_to !== null && preg_match('/^\d{4}-\d{2}-\d{2}$/', $date_to)) {
             $where[] = ['travel_date' => ['<=', $date_to]];
