@@ -5,6 +5,7 @@ require_once __DIR__ . '/inc/timeentry.class.php';
 require_once __DIR__ . '/inc/travelentry.class.php';
 require_once __DIR__ . '/inc/exporter.class.php';
 require_once __DIR__ . '/inc/monthlyreport.class.php';
+require_once __DIR__ . '/inc/userrate.class.php';
 require_once __DIR__ . '/inc/alertconfig.class.php';
 
 function plugin_timetracker_install(): bool
@@ -26,6 +27,7 @@ function plugin_timetracker_install(): bool
                `is_active` tinyint NOT NULL DEFAULT '1',
                `comment` text,
                `km_rate_cents` int unsigned DEFAULT NULL,
+               `revenue_hourly_rate_cents` int unsigned DEFAULT NULL,
                `date_mod` timestamp NULL DEFAULT NULL,
                `date_creation` timestamp NULL DEFAULT NULL,
                PRIMARY KEY (`id`),
@@ -42,6 +44,7 @@ function plugin_timetracker_install(): bool
         $migration->addField($budget_table, 'is_active', 'bool', ['value' => 1]);
         $migration->addField($budget_table, 'comment', 'text');
         $migration->addField($budget_table, 'km_rate_cents', 'integer', ['null' => true]);
+        $migration->addField($budget_table, 'revenue_hourly_rate_cents', 'integer', ['null' => true]);
         $migration->addField($budget_table, 'date_mod', 'timestamp', ['null' => true]);
         $migration->addField($budget_table, 'date_creation', 'timestamp', ['null' => true]);
         $migration->addKey($budget_table, 'contracts_id', 'contracts_id', 'UNIQUE');
@@ -133,6 +136,29 @@ function plugin_timetracker_install(): bool
         $migration->addKey($travel_table, 'travel_date');
     }
 
+    $userrate_table = PluginTimetrackerUserRate::getTable();
+    if (!$DB->tableExists($userrate_table)) {
+        $DB->doQuery(
+            "CREATE TABLE `$userrate_table` (
+               `id` int unsigned NOT NULL AUTO_INCREMENT,
+               `users_id` int unsigned NOT NULL DEFAULT '0',
+               `hourly_rate_cents` int unsigned NOT NULL DEFAULT '0',
+               `date_mod` timestamp NULL DEFAULT NULL,
+               `date_creation` timestamp NULL DEFAULT NULL,
+               PRIMARY KEY (`id`),
+               UNIQUE KEY `users_id` (`users_id`),
+               KEY `date_mod` (`date_mod`),
+               KEY `date_creation` (`date_creation`)
+            ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation}"
+        );
+    } else {
+        $migration->addField($userrate_table, 'users_id', 'integer', ['value' => 0]);
+        $migration->addField($userrate_table, 'hourly_rate_cents', 'integer', ['value' => 0]);
+        $migration->addField($userrate_table, 'date_mod', 'timestamp', ['null' => true]);
+        $migration->addField($userrate_table, 'date_creation', 'timestamp', ['null' => true]);
+        $migration->addKey($userrate_table, 'users_id', 'users_id', 'UNIQUE');
+    }
+
     $migration->executeMigration();
 
     $alert_table = PluginTimetrackerAlertConfig::getTable();
@@ -177,6 +203,9 @@ function plugin_timetracker_install(): bool
     if (!isset($existing_config['km_rate_cents'])) {
         $config_values['km_rate_cents'] = PluginTimetrackerTravelEntry::DEFAULT_KM_RATE_CENTS;
     }
+    if (!isset($existing_config['tech_hourly_rate_cents'])) {
+        $config_values['tech_hourly_rate_cents'] = PluginTimetrackerUserRate::DEFAULT_TECH_HOURLY_RATE_CENTS;
+    }
     Config::setConfigurationValues('plugin:timetracker', $config_values);
 
     CronTask::register(
@@ -211,6 +240,11 @@ function plugin_timetracker_uninstall(): bool
     $travel_table = PluginTimetrackerTravelEntry::getTable();
     if ($DB->tableExists($travel_table)) {
         $DB->dropTable($travel_table, true);
+    }
+
+    $userrate_table = PluginTimetrackerUserRate::getTable();
+    if ($DB->tableExists($userrate_table)) {
+        $DB->dropTable($userrate_table, true);
     }
 
     $budget_table = PluginTimetrackerContractBudget::getTable();
