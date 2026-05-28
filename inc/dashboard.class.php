@@ -23,33 +23,53 @@ class PluginTimetrackerDashboard extends CommonGLPI
         ];
     }
 
-    public static function showDashboard(): void
+    public static function showDashboard(?int $filter_contracts_id = null): void
     {
         global $DB;
 
         $budget_table = PluginTimetrackerContractBudget::getTable();
         $entry_table  = PluginTimetrackerTimeEntry::getTable();
 
-        $iterator = $DB->request([
+        $request = [
             'FROM'  => $budget_table,
             'ORDER' => 'contracts_id',
-        ]);
+        ];
+        if ($filter_contracts_id !== null && $filter_contracts_id > 0) {
+            $request['WHERE'] = ['contracts_id' => $filter_contracts_id];
+        }
+
+        $iterator = $DB->request($request);
 
         $contract      = new Contract();
         $total_initial = 0;
         $total_spent   = 0;
 
         $base = PluginTimetrackerContractBudget::getPluginWebDir() . '/front/dashboard.php';
+        $filter_param = ($filter_contracts_id !== null && $filter_contracts_id > 0)
+            ? '&contracts_id=' . $filter_contracts_id
+            : '';
 
         echo "<div class='center p-3'>";
         echo "<div class='mb-3 d-flex gap-2'>";
-        echo "<a class='btn btn-outline-secondary' href='" . htmlescape($base . '?export=time') . "'>"
+        echo "<a class='btn btn-outline-secondary' href='" . htmlescape($base . '?export=time' . $filter_param) . "'>"
             . "<i class='ti ti-download me-1'></i>" . htmlescape(__tt('Export time CSV')) . "</a>";
-        echo "<a class='btn btn-outline-secondary' href='" . htmlescape($base . '?export=travel') . "'>"
+        echo "<a class='btn btn-outline-secondary' href='" . htmlescape($base . '?export=travel' . $filter_param) . "'>"
             . "<i class='ti ti-download me-1'></i>" . htmlescape(__tt('Export travel CSV')) . "</a>";
+        if ($filter_contracts_id !== null && $filter_contracts_id > 0) {
+            echo "<a class='btn btn-outline-secondary ms-auto' href='" . htmlescape($base) . "'>"
+                . "<i class='ti ti-x me-1'></i>" . htmlescape(__tt('Clear filter')) . "</a>";
+        }
         echo "</div>";
+        $title = __tt('Contract time dashboard');
+        if ($filter_contracts_id !== null && $filter_contracts_id > 0) {
+            $focus_contract = new Contract();
+            if ($focus_contract->getFromDB($filter_contracts_id)) {
+                $title = sprintf('%s — %s', $title, $focus_contract->getName());
+            }
+        }
+
         echo "<table class='tab_cadre_fixe'>";
-        echo "<tr><th colspan='11'>" . __tt('Contract time dashboard') . '</th></tr>';
+        echo "<tr><th colspan='12'>" . htmlescape($title) . '</th></tr>';
         echo '<tr>';
         echo '<th class="p-2">' . __('Contract') . '</th>';
         echo '<th class="p-2">' . __('Active') . '</th>';
@@ -62,6 +82,7 @@ class PluginTimetrackerDashboard extends CommonGLPI
         echo '<th class="p-2">' . __tt('Travel cost') . '</th>';
         echo '<th class="p-2">' . __tt('Projection') . '</th>';
         echo '<th class="p-2">' . __tt('Over budget?') . '</th>';
+        echo '<th class="p-2">' . __tt('Margin') . '</th>';
         echo '</tr>';
 
         $has_rows = false;
@@ -77,6 +98,7 @@ class PluginTimetrackerDashboard extends CommonGLPI
             $proj          = PluginTimetrackerContractBudget::getProjection($contracts_id);
             $projected_total = (int) $proj['projected_total_minutes'];
             $over_projection = $projected_total > (int) $budget['initial_minutes'];
+            $margin_cents    = PluginTimetrackerContractBudget::getContractMarginCents($contracts_id);
             $total_initial += (int) $budget['initial_minutes'];
             $total_spent   += $spent;
             $pct           = $budget['initial_minutes'] > 0
@@ -124,8 +146,10 @@ class PluginTimetrackerDashboard extends CommonGLPI
                 . ($over_projection
                     ? '<i class="ti ti-alert-triangle text-warning" title="' . htmlescape(__tt('Projected over budget')) . '"></i>'
                     : '<i class="ti ti-check text-success"></i>') . '</td>';
+            echo '<td class="p-2"><strong class="' . ($margin_cents < 0 ? 'text-danger' : 'text-success') . '">'
+                . htmlescape(PluginTimetrackerContractBudget::formatMoneyCents($margin_cents)) . '</strong></td>';
             echo '</tr>';
-            echo "<tr class='tab_bg_1'><td colspan='11' class='px-3 pb-2'>";
+            echo "<tr class='tab_bg_1'><td colspan='12' class='px-3 pb-2'>";
             echo "<div class='progress' style='height:8px'>";
             echo "<div class='progress-bar {$bar_class}' role='progressbar' style='width:{$pct}%'></div>";
             echo "</div>";
@@ -133,7 +157,7 @@ class PluginTimetrackerDashboard extends CommonGLPI
         }
 
         if (!$has_rows) {
-            echo "<tr class='tab_bg_1'><td colspan='11' class='center p-3'>"
+            echo "<tr class='tab_bg_1'><td colspan='12' class='center p-3'>"
                 . __('No item found') . '</td></tr>';
         }
 
@@ -148,22 +172,27 @@ class PluginTimetrackerDashboard extends CommonGLPI
         echo '<td class="p-2"><strong>'
             . htmlescape(PluginTimetrackerContractBudget::formatMinutes($total_initial - $total_spent))
             . '</strong></td>';
-        echo '<td colspan="6"></td>';
+        echo '<td colspan="7"></td>';
         echo '</tr>';
         echo '</table>';
 
         echo "<div class='mb-4'></div>";
-        self::displayRecentEntries($entry_table);
+        self::displayRecentEntries($entry_table, $filter_contracts_id);
         echo '</div>';
     }
 
-    private static function displayRecentEntries(string $entry_table): void
+    private static function displayRecentEntries(string $entry_table, ?int $filter_contracts_id = null): void
     {
         global $DB;
 
+        $where = ['is_deleted' => 0];
+        if ($filter_contracts_id !== null && $filter_contracts_id > 0) {
+            $where['contracts_id'] = $filter_contracts_id;
+        }
+
         $iterator = $DB->request([
             'FROM'  => $entry_table,
-            'WHERE' => ['is_deleted' => 0],
+            'WHERE' => $where,
             'ORDER' => ['spent_at DESC', 'id DESC'],
             'LIMIT' => 10,
         ]);

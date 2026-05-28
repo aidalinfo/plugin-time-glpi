@@ -27,6 +27,6 @@ Html::header(
     PluginTimetrackerDashboard::class
 );
 
-PluginTimetrackerDashboard::showDashboard();
+PluginTimetrackerDashboard::showDashboard($contracts_id);
 
 Html::footer();
