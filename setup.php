@@ -36,7 +36,7 @@ function plugin_init_timetracker(): void
     ]);
 
     $PLUGIN_HOOKS['csrf_compliant']['timetracker'] = true;
-    $PLUGIN_HOOKS['config_page']['timetracker'] = 'front/dashboard.php';
+    $PLUGIN_HOOKS['config_page']['timetracker'] = 'front/config.form.php';
     $PLUGIN_HOOKS['menu_toadd']['timetracker'] = [
         'tools' => PluginTimetrackerDashboard::class,
     ];
