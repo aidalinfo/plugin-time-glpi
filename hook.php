@@ -23,6 +23,7 @@ function plugin_timetracker_install(): bool
                `alert_threshold_minutes` int unsigned NOT NULL DEFAULT '0',
                `is_active` tinyint NOT NULL DEFAULT '1',
                `comment` text,
+               `km_rate_cents` int unsigned DEFAULT NULL,
                `date_mod` timestamp NULL DEFAULT NULL,
                `date_creation` timestamp NULL DEFAULT NULL,
                PRIMARY KEY (`id`),
@@ -38,6 +39,7 @@ function plugin_timetracker_install(): bool
         $migration->addField($budget_table, 'alert_threshold_minutes', 'integer', ['value' => 0]);
         $migration->addField($budget_table, 'is_active', 'bool', ['value' => 1]);
         $migration->addField($budget_table, 'comment', 'text');
+        $migration->addField($budget_table, 'km_rate_cents', 'integer', ['null' => true]);
         $migration->addField($budget_table, 'date_mod', 'timestamp', ['null' => true]);
         $migration->addField($budget_table, 'date_creation', 'timestamp', ['null' => true]);
         $migration->addKey($budget_table, 'contracts_id', 'contracts_id', 'UNIQUE');
