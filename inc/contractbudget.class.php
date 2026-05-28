@@ -61,12 +61,16 @@ class PluginTimetrackerContractBudget extends CommonDBTM
     {
         $budget = new self();
         $existing = self::getForContract($contracts_id);
+        $raw_rate = trim((string) ($input['km_rate_cents'] ?? ''));
         $data = [
             'contracts_id'             => $contracts_id,
             'initial_minutes'          => self::parseDurationInput($input, 'initial'),
             'alert_threshold_minutes'  => self::parseDurationInput($input, 'alert'),
             'is_active'                => isset($input['is_active']) ? 1 : 0,
             'comment'                  => $input['comment'] ?? '',
+            'km_rate_cents'            => ($raw_rate === '' || !is_numeric($raw_rate))
+                ? null
+                : max(0, (int) $raw_rate),
         ];
 
         if ($existing !== null) {
@@ -304,6 +308,17 @@ class PluginTimetrackerContractBudget extends CommonDBTM
             ], ['value' => $alert_unit]);
             echo "</div></td>";
             echo '</tr>';
+            echo "<tr class='tab_bg_1'>";
+            echo "<td class='p-3'><label class='form-label fw-semibold'>"
+                . __tt('Km rate override (cents)') . "</label></td>";
+            echo "<td class='p-3'>";
+            $current_rate = $budget['km_rate_cents'] ?? '';
+            echo "<input type='number' min='0' name='km_rate_cents' class='form-control' style='width:140px' value='"
+                . htmlescape((string) $current_rate) . "' placeholder='"
+                . htmlescape((string) PluginTimetrackerTravelEntry::getKmRateCents()) . "'>";
+            echo "<small class='text-muted d-block mt-1'>"
+                . __tt('Leave empty to use the global plugin rate.') . "</small>";
+            echo "</td></tr>";
             echo "<tr class='tab_bg_1'>";
             echo "<td class='p-3'><label class='form-label fw-semibold'>" . __('Active') . "</label><br>";
             echo "<input type='checkbox' class='form-check-input' name='is_active' value='1'"
