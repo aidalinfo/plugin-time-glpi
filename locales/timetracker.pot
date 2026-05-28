@@ -202,3 +202,59 @@ msgstr ""
 
 msgid "Configuration saved."
 msgstr ""
+
+msgid "Technician hourly rate"
+msgid_plural "Technician hourly rates"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "Hourly rate"
+msgstr ""
+
+msgid "Global rate (plugin config)"
+msgstr ""
+
+msgid "Effective rate for this user"
+msgstr ""
+
+msgid "Override"
+msgstr ""
+
+msgid "Override hourly rate"
+msgstr ""
+
+msgid "Hourly rate override (cents)"
+msgstr ""
+
+msgid "Leave empty to use the global rate."
+msgstr ""
+
+msgid "Hourly rate saved."
+msgstr ""
+
+msgid "Unable to save hourly rate."
+msgstr ""
+
+msgid "Default technician hourly rate (cents)"
+msgstr ""
+
+msgid "Revenue hourly rate (cents)"
+msgstr ""
+
+msgid "Rate billed to the client per hour, in cents. Used to compute estimated margin."
+msgstr ""
+
+msgid "Estimated margin"
+msgstr ""
+
+msgid "Revenue estimate"
+msgstr ""
+
+msgid "Cost estimate"
+msgstr ""
+
+msgid "Margin"
+msgstr ""
+
+msgid "Clear filter"
+msgstr ""
