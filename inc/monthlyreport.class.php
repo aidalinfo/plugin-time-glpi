@@ -113,8 +113,7 @@ class PluginTimetrackerMonthlyReport extends CommonGLPI
                 ->subject(sprintf(__tt('[GLPI Timetracker] Monthly report — %s'), $contract_name))
                 ->text(__tt('Please find attached the monthly tracking report.'));
             $email->attach($pdf_bytes, $filename, 'application/pdf');
-            $mailer->send();
-            return true;
+            return $mailer->send();
         } catch (\Throwable $e) {
             Toolbox::logError('Monthly report mail failed: ' . $e->getMessage());
             return false;
