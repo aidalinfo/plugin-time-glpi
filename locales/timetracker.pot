@@ -136,3 +136,69 @@ msgstr ""
 
 msgid "Contract: %s\nInitial budget: %s\nConsumed: %s\nThreshold: %s\nRemaining: %s\n\nThis is an automated alert from GLPI Timetracker."
 msgstr ""
+
+msgid "Km rate override (cents)"
+msgstr ""
+
+msgid "Leave empty to use the global plugin rate."
+msgstr ""
+
+msgid "Default km rate (cents)"
+msgstr ""
+
+msgid "Plugin configuration"
+msgstr ""
+
+msgid "Contract time tracking — Configuration"
+msgstr ""
+
+msgid "Export time CSV"
+msgstr ""
+
+msgid "Export travel CSV"
+msgstr ""
+
+msgid "Renewal"
+msgstr ""
+
+msgid "Projected over budget"
+msgstr ""
+
+msgid "Travel km"
+msgstr ""
+
+msgid "Travel cost"
+msgstr ""
+
+msgid "Projection"
+msgstr ""
+
+msgid "Over budget?"
+msgstr ""
+
+msgid "Monthly contract report"
+msgstr ""
+
+msgid "Initial budget"
+msgstr ""
+
+msgid "Consumed"
+msgstr ""
+
+msgid "Remaining"
+msgstr ""
+
+msgid "Travels"
+msgstr ""
+
+msgid "[GLPI Timetracker] Renewal upcoming — contract \"%s\" (%d days)"
+msgstr ""
+
+msgid "[GLPI Timetracker] Monthly report — %s"
+msgstr ""
+
+msgid "Please find attached the monthly tracking report."
+msgstr ""
+
+msgid "Configuration saved."
+msgstr ""

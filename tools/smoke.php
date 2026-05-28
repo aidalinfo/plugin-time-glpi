@@ -23,6 +23,7 @@ require_once $plugin_root . '/setup.php';
 require_once $autoload;
 require_once $plugin_root . '/inc/contractbudget.class.php';
 require_once $plugin_root . '/inc/timeentry.class.php';
+require_once $plugin_root . '/inc/travelentry.class.php';
 require_once $plugin_root . '/inc/dashboard.class.php';
 require_once $plugin_root . '/hook.php';
 
@@ -69,6 +70,29 @@ if (PluginTimetrackerTimeEntry::parseDurationMinutes([
 
 if (PluginTimetrackerContractBudget::formatMinutes(95) !== '1h 35min') {
     $failures[] = 'Minute formatting failed.';
+}
+
+$conf_before = Config::getConfigurationValues('plugin:timetracker');
+Config::setConfigurationValues('plugin:timetracker', ['km_rate_cents' => 90]);
+if (PluginTimetrackerTravelEntry::getKmRateCents(0) !== 90) {
+    $failures[] = 'Global km rate fallback failed.';
+}
+Config::setConfigurationValues('plugin:timetracker', $conf_before);
+
+require_once $plugin_root . '/inc/exporter.class.php';
+require_once $plugin_root . '/inc/monthlyreport.class.php';
+
+if (!method_exists(PluginTimetrackerExporter::class, 'streamTimeEntriesCsv')) {
+    $failures[] = 'Missing CSV exporter for time entries.';
+}
+if (!method_exists(PluginTimetrackerExporter::class, 'streamTravelEntriesCsv')) {
+    $failures[] = 'Missing CSV exporter for travel entries.';
+}
+if (!method_exists(PluginTimetrackerContractBudget::class, 'getProjection')) {
+    $failures[] = 'Missing run-rate projection helper.';
+}
+if (!method_exists(PluginTimetrackerMonthlyReport::class, 'cronSendMonthlyReports')) {
+    $failures[] = 'Missing monthly report cron entrypoint.';
 }
 
 if ($failures !== []) {

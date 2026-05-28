@@ -138,3 +138,69 @@ msgstr "[GLPI Timetracker] Umbral de presupuesto alcanzado — contrato \"%s\""
 
 msgid "Contract: %s\nInitial budget: %s\nConsumed: %s\nThreshold: %s\nRemaining: %s\n\nThis is an automated alert from GLPI Timetracker."
 msgstr "Contrato: %s\nPresupuesto inicial: %s\nConsumido: %s\nUmbral: %s\nRestante: %s\n\nEsta es una alerta automática de GLPI Timetracker."
+
+msgid "Km rate override (cents)"
+msgstr "Tarifa km — anulación (céntimos)"
+
+msgid "Leave empty to use the global plugin rate."
+msgstr "Dejar vacío para usar la tarifa global del plugin."
+
+msgid "Default km rate (cents)"
+msgstr "Tarifa km por defecto (céntimos)"
+
+msgid "Plugin configuration"
+msgstr "Configuración del plugin"
+
+msgid "Contract time tracking — Configuration"
+msgstr "Seguimiento del tiempo de contrato — Configuración"
+
+msgid "Export time CSV"
+msgstr "Exportar CSV de tiempos"
+
+msgid "Export travel CSV"
+msgstr "Exportar CSV de desplazamientos"
+
+msgid "Renewal"
+msgstr "Renovación"
+
+msgid "Projected over budget"
+msgstr "Proyección sobre presupuesto"
+
+msgid "Travel km"
+msgstr "Km desplazamientos"
+
+msgid "Travel cost"
+msgstr "Costo desplazamientos"
+
+msgid "Projection"
+msgstr "Proyección"
+
+msgid "Over budget?"
+msgstr "¿Sobre presupuesto?"
+
+msgid "Monthly contract report"
+msgstr "Informe mensual del contrato"
+
+msgid "Initial budget"
+msgstr "Presupuesto inicial"
+
+msgid "Consumed"
+msgstr "Consumido"
+
+msgid "Remaining"
+msgstr "Restante"
+
+msgid "Travels"
+msgstr "Desplazamientos"
+
+msgid "[GLPI Timetracker] Renewal upcoming — contract \"%s\" (%d days)"
+msgstr "[GLPI Timetracker] Renovación próxima — contrato \"%s\" (%d días)"
+
+msgid "[GLPI Timetracker] Monthly report — %s"
+msgstr "[GLPI Timetracker] Informe mensual — %s"
+
+msgid "Please find attached the monthly tracking report."
+msgstr "Adjunto encontrará el informe mensual de seguimiento."
+
+msgid "Configuration saved."
+msgstr "Configuración guardada."

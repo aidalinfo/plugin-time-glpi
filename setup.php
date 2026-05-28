@@ -1,6 +1,6 @@
 <?php
 
-define('PLUGIN_TIMETRACKER_VERSION', '0.1.8');
+define('PLUGIN_TIMETRACKER_VERSION', '0.2.0');
 define('PLUGIN_TIMETRACKER_MIN_GLPI', '11.0.0');
 define('PLUGIN_TIMETRACKER_MAX_GLPI', '11.1.0');
 
@@ -25,14 +25,20 @@ function plugin_init_timetracker(): void
         'addtabon' => ['Ticket'],
     ]);
 
+    Plugin::registerClass(PluginTimetrackerTravelEntry::class, [
+        'addtabon' => ['Ticket'],
+    ]);
+
     Plugin::registerClass(PluginTimetrackerDashboard::class);
 
     Plugin::registerClass(PluginTimetrackerAlertConfig::class, [
         'addtabon' => ['Contract'],
     ]);
 
+    Plugin::registerClass(PluginTimetrackerMonthlyReport::class);
+
     $PLUGIN_HOOKS['csrf_compliant']['timetracker'] = true;
-    $PLUGIN_HOOKS['config_page']['timetracker'] = 'front/dashboard.php';
+    $PLUGIN_HOOKS['config_page']['timetracker'] = 'front/config.form.php';
     $PLUGIN_HOOKS['menu_toadd']['timetracker'] = [
         'tools' => PluginTimetrackerDashboard::class,
     ];
