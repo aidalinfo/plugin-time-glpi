@@ -76,8 +76,15 @@ class PluginTimetrackerAlertConfig extends CommonDBTM
         }
 
         foreach ($alerts as $alert) {
-            $type_label = $alert['type'] === 'deadline' ? __tt('Deadline') : __tt('Threshold');
-            $days = $alert['type'] === 'deadline' ? htmlescape((string) $alert['days_before']) : '—';
+            $type_label = match ($alert['type']) {
+                'deadline' => __tt('Deadline'),
+                'renewal'  => __tt('Renewal'),
+                'threshold'=> __tt('Threshold'),
+                default    => $alert['type'],
+            };
+            $days = in_array($alert['type'], ['deadline', 'renewal'], true)
+                ? htmlescape((string) $alert['days_before'])
+                : '—';
             $active_icon = (int) $alert['is_active'] === 1
                 ? "<i class='ti ti-check text-success'></i>"
                 : "<i class='ti ti-x text-danger'></i>";
@@ -116,8 +123,9 @@ class PluginTimetrackerAlertConfig extends CommonDBTM
             echo "<td class='p-2'><label class='form-label fw-semibold'>" . __tt('Type') . "</label><br>";
             echo "<select name='type' class='form-select' style='width:auto' "
                 . "onchange=\"document.getElementById('days_before_cell').style.display="
-                . "this.value==='deadline'?'':'none'\">";
+                . "(this.value==='deadline'||this.value==='renewal')?'':'none'\">";
             echo "<option value='deadline'>" . htmlescape(__tt('Deadline')) . "</option>";
+            echo "<option value='renewal'>" . htmlescape(__tt('Renewal')) . "</option>";
             echo "<option value='threshold'>" . htmlescape(__tt('Threshold')) . "</option>";
             echo "</select></td>";
 
@@ -166,6 +174,8 @@ class PluginTimetrackerAlertConfig extends CommonDBTM
 
             if ($alert['type'] === 'deadline') {
                 $sent += self::processDeadlineAlert($alert, $contract);
+            } elseif ($alert['type'] === 'renewal') {
+                $sent += self::processRenewalAlert($alert, $contract);
             } elseif ($alert['type'] === 'threshold') {
                 $sent += self::processThresholdAlert($alert, $contract);
             }
@@ -266,6 +276,101 @@ class PluginTimetrackerAlertConfig extends CommonDBTM
 
         self::updateLastSent((int) $alert['id']);
         return 1;
+    }
+
+    private static function processRenewalAlert(array $alert, Contract $contract): int
+    {
+        $begin_date = $contract->fields['begin_date'] ?? null;
+        $duration   = (int) ($contract->fields['duration'] ?? 0);
+        if (!$begin_date || $duration <= 0) {
+            return 0;
+        }
+
+        $end_ts    = strtotime("+{$duration} months", strtotime($begin_date));
+        $now_ts    = time();
+        $diff_days = (int) ceil(($end_ts - $now_ts) / 86400);
+        $days_before = (int) ($alert['days_before'] ?? 60);
+
+        if ($diff_days > $days_before || $diff_days < 0) {
+            return 0;
+        }
+
+        if (!empty($alert['last_sent_at'])) {
+            $last_ts = strtotime($alert['last_sent_at']);
+            if ($last_ts !== false && (time() - $last_ts) < 23 * 3600) {
+                return 0;
+            }
+        }
+
+        $contracts_id  = (int) $contract->getID();
+        $budget        = PluginTimetrackerContractBudget::getForContract($contracts_id);
+        $initial       = (int) ($budget['initial_minutes'] ?? 0);
+        $spent         = PluginTimetrackerContractBudget::getSpentMinutes($contracts_id);
+        $remaining     = $initial - $spent;
+        $projection    = PluginTimetrackerContractBudget::getProjection($contracts_id);
+        $travel        = PluginTimetrackerTravelEntry::getContractTotals($contracts_id);
+        $rate          = PluginTimetrackerTravelEntry::getKmRateCents($contracts_id);
+        $travel_cost   = (int) round($travel['km'] * $rate);
+        $tickets_count = self::countTickets($contracts_id);
+
+        $contract_name = $contract->getName();
+        $end_date_str  = date('Y-m-d', $end_ts);
+
+        $subject = sprintf(
+            __tt('[GLPI Timetracker] Renewal upcoming — contract "%s" (%d days)'),
+            $contract_name,
+            $diff_days
+        );
+
+        $body = sprintf(
+            __tt(
+                "Contract renewal — %s\n\n"
+              . "End date: %s\n"
+              . "Days remaining: %d\n\n"
+              . "Hours: initial %s, consumed %s, remaining %s\n"
+              . "Projection (run-rate): %s\n"
+              . "Tickets opened: %d\n"
+              . "Travels: %s (%s)\n\n"
+              . "This is an automated alert from GLPI Timetracker."
+            ),
+            $contract_name,
+            $end_date_str,
+            $diff_days,
+            PluginTimetrackerContractBudget::formatMinutes($initial),
+            PluginTimetrackerContractBudget::formatMinutes($spent),
+            PluginTimetrackerContractBudget::formatMinutes($remaining),
+            PluginTimetrackerContractBudget::formatMinutes((int) $projection['projected_total_minutes']),
+            $tickets_count,
+            PluginTimetrackerTravelEntry::formatKm((float) $travel['km']),
+            PluginTimetrackerTravelEntry::formatCost($travel_cost)
+        );
+
+        if (!self::sendMail($alert['recipient_email'], $subject, $body)) {
+            return 0;
+        }
+
+        self::updateLastSent((int) $alert['id']);
+        return 1;
+    }
+
+    private static function countTickets(int $contracts_id): int
+    {
+        global $DB;
+
+        $iterator = $DB->request([
+            'SELECT' => [new QueryExpression('COUNT(DISTINCT tickets_id) AS total')],
+            'FROM'   => PluginTimetrackerTimeEntry::getTable(),
+            'WHERE'  => [
+                'contracts_id' => $contracts_id,
+                'is_deleted'   => 0,
+            ],
+        ]);
+
+        foreach ($iterator as $row) {
+            return (int) ($row['total'] ?? 0);
+        }
+
+        return 0;
     }
 
     private static function sendMail(string $to, string $subject, string $body): bool
