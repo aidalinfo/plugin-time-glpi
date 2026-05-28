@@ -79,6 +79,22 @@ if (PluginTimetrackerTravelEntry::getKmRateCents(0) !== 90) {
 }
 Config::setConfigurationValues('plugin:timetracker', $conf_before);
 
+require_once $plugin_root . '/inc/exporter.class.php';
+require_once $plugin_root . '/inc/monthlyreport.class.php';
+
+if (!method_exists(PluginTimetrackerExporter::class, 'streamTimeEntriesCsv')) {
+    $failures[] = 'Missing CSV exporter for time entries.';
+}
+if (!method_exists(PluginTimetrackerExporter::class, 'streamTravelEntriesCsv')) {
+    $failures[] = 'Missing CSV exporter for travel entries.';
+}
+if (!method_exists(PluginTimetrackerContractBudget::class, 'getProjection')) {
+    $failures[] = 'Missing run-rate projection helper.';
+}
+if (!method_exists(PluginTimetrackerMonthlyReport::class, 'cronSendMonthlyReports')) {
+    $failures[] = 'Missing monthly report cron entrypoint.';
+}
+
 if ($failures !== []) {
     foreach ($failures as $failure) {
         fwrite(STDERR, "- {$failure}\n");
