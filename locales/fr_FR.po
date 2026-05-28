@@ -204,3 +204,59 @@ msgstr "Veuillez trouver ci-joint le rapport mensuel de suivi."
 
 msgid "Configuration saved."
 msgstr "Configuration enregistrée."
+
+msgid "Technician hourly rate"
+msgid_plural "Technician hourly rates"
+msgstr[0] "Tarif horaire technicien"
+msgstr[1] "Tarifs horaires techniciens"
+
+msgid "Hourly rate"
+msgstr "Tarif horaire"
+
+msgid "Global rate (plugin config)"
+msgstr "Tarif global (configuration du plugin)"
+
+msgid "Effective rate for this user"
+msgstr "Tarif effectif pour cet utilisateur"
+
+msgid "Override"
+msgstr "Surcharge"
+
+msgid "Override hourly rate"
+msgstr "Surcharger le tarif horaire"
+
+msgid "Hourly rate override (cents)"
+msgstr "Surcharge du tarif horaire (centimes)"
+
+msgid "Leave empty to use the global rate."
+msgstr "Laisser vide pour utiliser le tarif global."
+
+msgid "Hourly rate saved."
+msgstr "Tarif horaire enregistré."
+
+msgid "Unable to save hourly rate."
+msgstr "Impossible d'enregistrer le tarif horaire."
+
+msgid "Default technician hourly rate (cents)"
+msgstr "Tarif horaire technicien par défaut (centimes)"
+
+msgid "Revenue hourly rate (cents)"
+msgstr "Tarif horaire facturé (centimes)"
+
+msgid "Rate billed to the client per hour, in cents. Used to compute estimated margin."
+msgstr "Tarif facturé au client par heure, en centimes. Utilisé pour calculer la marge estimée."
+
+msgid "Estimated margin"
+msgstr "Marge estimée"
+
+msgid "Revenue estimate"
+msgstr "Revenu estimé"
+
+msgid "Cost estimate"
+msgstr "Coût estimé"
+
+msgid "Margin"
+msgstr "Marge"
+
+msgid "Clear filter"
+msgstr "Effacer le filtre"

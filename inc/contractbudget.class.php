@@ -61,16 +61,20 @@ class PluginTimetrackerContractBudget extends CommonDBTM
     {
         $budget = new self();
         $existing = self::getForContract($contracts_id);
-        $raw_rate = trim((string) ($input['km_rate_cents'] ?? ''));
+        $raw_rate    = trim((string) ($input['km_rate_cents'] ?? ''));
+        $raw_revenue = trim((string) ($input['revenue_hourly_rate_cents'] ?? ''));
         $data = [
-            'contracts_id'             => $contracts_id,
-            'initial_minutes'          => self::parseDurationInput($input, 'initial'),
-            'alert_threshold_minutes'  => self::parseDurationInput($input, 'alert'),
-            'is_active'                => isset($input['is_active']) ? 1 : 0,
-            'comment'                  => $input['comment'] ?? '',
-            'km_rate_cents'            => ($raw_rate === '' || !is_numeric($raw_rate))
+            'contracts_id'              => $contracts_id,
+            'initial_minutes'           => self::parseDurationInput($input, 'initial'),
+            'alert_threshold_minutes'   => self::parseDurationInput($input, 'alert'),
+            'is_active'                 => isset($input['is_active']) ? 1 : 0,
+            'comment'                   => $input['comment'] ?? '',
+            'km_rate_cents'             => ($raw_rate === '' || !is_numeric($raw_rate))
                 ? null
                 : max(0, (int) $raw_rate),
+            'revenue_hourly_rate_cents' => ($raw_revenue === '' || !is_numeric($raw_revenue))
+                ? null
+                : max(0, (int) $raw_revenue),
         ];
 
         if ($existing !== null) {
@@ -128,6 +132,57 @@ class PluginTimetrackerContractBudget extends CommonDBTM
         }
 
         return (int) $budget['initial_minutes'] - self::getSpentMinutes($contracts_id);
+    }
+
+    public static function getContractCostCents(int $contracts_id): int
+    {
+        global $DB;
+
+        $iterator = $DB->request([
+            'SELECT' => ['users_id', new QueryExpression('SUM(duration_minutes) AS total')],
+            'FROM'   => PluginTimetrackerTimeEntry::getTable(),
+            'WHERE'  => [
+                'contracts_id' => $contracts_id,
+                'is_deleted'   => 0,
+            ],
+            'GROUPBY' => 'users_id',
+        ]);
+
+        $total_cents = 0;
+        foreach ($iterator as $row) {
+            $minutes = (int) ($row['total'] ?? 0);
+            $rate    = PluginTimetrackerUserRate::getRateCents((int) $row['users_id']);
+            $total_cents += (int) round($minutes * $rate / 60);
+        }
+
+        return $total_cents;
+    }
+
+    public static function getContractRevenueCents(int $contracts_id): int
+    {
+        $budget = self::getForContract($contracts_id);
+        if ($budget === null) {
+            return 0;
+        }
+
+        $rate = $budget['revenue_hourly_rate_cents'] ?? null;
+        if ($rate === null) {
+            return 0;
+        }
+
+        $initial = (int) $budget['initial_minutes'];
+        return (int) round($initial * (int) $rate / 60);
+    }
+
+    public static function getContractMarginCents(int $contracts_id): int
+    {
+        return self::getContractRevenueCents($contracts_id) - self::getContractCostCents($contracts_id);
+    }
+
+    public static function formatMoneyCents(int $cents): string
+    {
+        $sign = $cents < 0 ? '-' : '';
+        return $sign . number_format(abs($cents) / 100, 2, ',', ' ') . ' €';
     }
 
     public static function getProjection(int $contracts_id): array
@@ -312,6 +367,24 @@ class PluginTimetrackerContractBudget extends CommonDBTM
         echo '</td></tr>';
         echo '</table>';
 
+        // Margin block
+        $cost    = self::getContractCostCents($contracts_id);
+        $revenue = self::getContractRevenueCents($contracts_id);
+        $margin  = $revenue - $cost;
+        $margin_class = $margin < 0 ? 'text-danger' : 'text-success';
+
+        echo "<table class='tab_cadre_fixe mb-3'>";
+        echo "<tr><th colspan='3'>" . __tt('Estimated margin') . '</th></tr>';
+        echo "<tr class='tab_bg_1'>";
+        echo "<td class='p-3'><strong>" . __tt('Revenue estimate') . "</strong><br>"
+            . htmlescape(self::formatMoneyCents($revenue)) . '</td>';
+        echo "<td class='p-3'><strong>" . __tt('Cost estimate') . "</strong><br>"
+            . htmlescape(self::formatMoneyCents($cost)) . '</td>';
+        echo "<td class='p-3'><strong>" . __tt('Margin') . "</strong><br>"
+            . "<span class='{$margin_class}'>" . htmlescape(self::formatMoneyCents($margin)) . "</span></td>";
+        echo '</tr>';
+        echo '</table>';
+
         // Formulaire
         if (Contract::canUpdate()) {
             $initial_value = self::getDisplayDurationValue((int) $budget['initial_minutes']);
@@ -354,6 +427,16 @@ class PluginTimetrackerContractBudget extends CommonDBTM
                 . htmlescape((string) PluginTimetrackerTravelEntry::getKmRateCents()) . "'>";
             echo "<small class='text-muted d-block mt-1'>"
                 . __tt('Leave empty to use the global plugin rate.') . "</small>";
+            echo "</td></tr>";
+            echo "<tr class='tab_bg_1'>";
+            echo "<td class='p-3'><label class='form-label fw-semibold'>"
+                . __tt('Revenue hourly rate (cents)') . "</label></td>";
+            echo "<td class='p-3'>";
+            $current_revenue = $budget['revenue_hourly_rate_cents'] ?? '';
+            echo "<input type='number' min='0' name='revenue_hourly_rate_cents' class='form-control' style='width:160px' value='"
+                . htmlescape((string) $current_revenue) . "'>";
+            echo "<small class='text-muted d-block mt-1'>"
+                . __tt('Rate billed to the client per hour, in cents. Used to compute estimated margin.') . "</small>";
             echo "</td></tr>";
             echo "<tr class='tab_bg_1'>";
             echo "<td class='p-3'><label class='form-label fw-semibold'>" . __('Active') . "</label><br>";

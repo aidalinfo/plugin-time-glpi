@@ -95,6 +95,25 @@ if (!method_exists(PluginTimetrackerMonthlyReport::class, 'cronSendMonthlyReport
     $failures[] = 'Missing monthly report cron entrypoint.';
 }
 
+require_once $plugin_root . '/inc/userrate.class.php';
+
+if (!method_exists(PluginTimetrackerUserRate::class, 'getRateCents')) {
+    $failures[] = 'Missing per-user rate helper.';
+}
+if (!method_exists(PluginTimetrackerContractBudget::class, 'getContractMarginCents')) {
+    $failures[] = 'Missing contract margin helper.';
+}
+
+$conf_before2 = Config::getConfigurationValues('plugin:timetracker');
+Config::setConfigurationValues('plugin:timetracker', ['tech_hourly_rate_cents' => 4200]);
+if (PluginTimetrackerUserRate::getGlobalRateCents() !== 4200) {
+    $failures[] = 'Global tech rate fallback failed.';
+}
+if (PluginTimetrackerUserRate::getRateCents(0) !== 4200) {
+    $failures[] = 'Tech rate resolution for null user failed.';
+}
+Config::setConfigurationValues('plugin:timetracker', $conf_before2);
+
 if ($failures !== []) {
     foreach ($failures as $failure) {
         fwrite(STDERR, "- {$failure}\n");
