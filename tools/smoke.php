@@ -23,6 +23,7 @@ require_once $plugin_root . '/setup.php';
 require_once $autoload;
 require_once $plugin_root . '/inc/contractbudget.class.php';
 require_once $plugin_root . '/inc/timeentry.class.php';
+require_once $plugin_root . '/inc/travelentry.class.php';
 require_once $plugin_root . '/inc/dashboard.class.php';
 require_once $plugin_root . '/hook.php';
 
@@ -70,6 +71,13 @@ if (PluginTimetrackerTimeEntry::parseDurationMinutes([
 if (PluginTimetrackerContractBudget::formatMinutes(95) !== '1h 35min') {
     $failures[] = 'Minute formatting failed.';
 }
+
+$conf_before = Config::getConfigurationValues('plugin:timetracker');
+Config::setConfigurationValues('plugin:timetracker', ['km_rate_cents' => 90]);
+if (PluginTimetrackerTravelEntry::getKmRateCents(0) !== 90) {
+    $failures[] = 'Global km rate fallback failed.';
+}
+Config::setConfigurationValues('plugin:timetracker', $conf_before);
 
 if ($failures !== []) {
     foreach ($failures as $failure) {
