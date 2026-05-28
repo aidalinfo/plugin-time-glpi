@@ -39,7 +39,15 @@ class PluginTimetrackerDashboard extends CommonGLPI
         $total_initial = 0;
         $total_spent   = 0;
 
+        $base = PluginTimetrackerContractBudget::getPluginWebDir() . '/front/dashboard.php';
+
         echo "<div class='center p-3'>";
+        echo "<div class='mb-3 d-flex gap-2'>";
+        echo "<a class='btn btn-outline-secondary' href='" . htmlescape($base . '?export=time') . "'>"
+            . "<i class='ti ti-download me-1'></i>" . htmlescape(__tt('Export time CSV')) . "</a>";
+        echo "<a class='btn btn-outline-secondary' href='" . htmlescape($base . '?export=travel') . "'>"
+            . "<i class='ti ti-download me-1'></i>" . htmlescape(__tt('Export travel CSV')) . "</a>";
+        echo "</div>";
         echo "<table class='tab_cadre_fixe'>";
         echo "<tr><th colspan='11'>" . __tt('Contract time dashboard') . '</th></tr>';
         echo '<tr>';
